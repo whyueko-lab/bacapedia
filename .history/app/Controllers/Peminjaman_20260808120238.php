@@ -21,23 +21,40 @@ class Peminjaman extends ResourceController
     public function pinjam()
     {
         $data = $this->request->getJSON(true);
+    if (!$data || !isset($data['buku_id'])) {
+        return $this->fail('buku_id wajib diisi', 400);
+    }
 
-        if (!$data || !isset($data['buku_id'])) {
-            return $this->fail('buku_id wajib diisi', 400);
+    // Ambil user dari token JWT
+    $jwt = new JWTLibrary();
+    $header = $this->request->getHeaderLine('Authorization');
+    $token = str_replace('Bearer ', '', $header);
+    $decoded = $jwt->verifyToken($token);
+
+    $userId = $decoded->data->id;
+
+        // Hanya ADMIN atau PETUGAS yang boleh memproses peminjaman
+        if (
+            $decoded->data->role !== 'ADMIN' &&
+            $decoded->data->role !== 'PETUGAS'
+        ) {
+            return $this->failForbidden('Hanya Admin/Petugas yang dapat memproses peminjaman');
         }
 
-        // Ambil user dari token JWT
-        $jwt = new JWTLibrary();
-        $header = $this->request->getHeaderLine('Authorization');
-        $token = str_replace('Bearer ', '', $header);
-        $decoded = $jwt->verifyToken($token);
+        // User yang dipinjamkan (anggota)
+        $userId = $data['user_id'];
 
-        // User yang sedang login
-        $userId = $decoded->data->id;
+        // ===== TAMBAHKAN DI SINI =====
+        $userModel = new \App\Models\UserModel();
 
-        // Hanya anggota yang boleh meminjam
-        if ($decoded->data->role !== 'ANGGOTA') {
-            return $this->failForbidden('Hanya anggota yang dapat meminjam buku');
+        $anggota = $userModel->find($userId);
+
+        if (!$anggota) {
+            return $this->failNotFound('Anggota tidak ditemukan');
+        }
+
+        if ($anggota['role'] !== 'ANGGOTA') {
+            return $this->fail('Peminjaman hanya dapat dilakukan untuk user dengan role ANGGOTA', 422);
         }
 
         // Cari buku
@@ -47,11 +64,12 @@ class Peminjaman extends ResourceController
             return $this->failNotFound('Buku tidak ditemukan');
         }
 
+        // Aturan 1: stok harus tersedia
         if ($buku['stok'] <= 0) {
             return $this->fail('Stok buku habis', 422);
         }
 
-        // Maksimal 3 buku aktif
+        // Aturan 2: maksimal 3 buku aktif
         $jumlahAktif = $this->peminjaman
             ->where('user_id', $userId)
             ->where('status', 'DIPINJAM')
@@ -59,17 +77,6 @@ class Peminjaman extends ResourceController
 
         if ($jumlahAktif >= 3) {
             return $this->fail('Maksimal peminjaman aktif adalah 3 buku', 422);
-        }
-
-        // Cegah meminjam buku yang sama dua kali
-        $sudahPinjam = $this->peminjaman
-            ->where('user_id', $userId)
-            ->where('buku_id', $data['buku_id'])
-            ->where('status', 'DIPINJAM')
-            ->first();
-
-        if ($sudahPinjam) {
-            return $this->fail('Buku ini masih sedang Anda pinjam', 409);
         }
 
         $tanggalPinjam = date('Y-m-d');
@@ -84,6 +91,7 @@ class Peminjaman extends ResourceController
             'denda' => 0
         ]);
 
+        // Kurangi stok
         $this->buku->update($buku['id'], [
             'stok' => $buku['stok'] - 1
         ]);

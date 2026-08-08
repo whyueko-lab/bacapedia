@@ -19,82 +19,82 @@ class Peminjaman extends ResourceController
     }
 
     public function pinjam()
-    {
-        $data = $this->request->getJSON(true);
+{
+    $data = $this->request->getJSON(true);
 
-        if (!$data || !isset($data['buku_id'])) {
-            return $this->fail('buku_id wajib diisi', 400);
-        }
-
-        // Ambil user dari token JWT
-        $jwt = new JWTLibrary();
-        $header = $this->request->getHeaderLine('Authorization');
-        $token = str_replace('Bearer ', '', $header);
-        $decoded = $jwt->verifyToken($token);
-
-        // User yang sedang login
-        $userId = $decoded->data->id;
-
-        // Hanya anggota yang boleh meminjam
-        if ($decoded->data->role !== 'ANGGOTA') {
-            return $this->failForbidden('Hanya anggota yang dapat meminjam buku');
-        }
-
-        // Cari buku
-        $buku = $this->buku->find($data['buku_id']);
-
-        if (!$buku) {
-            return $this->failNotFound('Buku tidak ditemukan');
-        }
-
-        if ($buku['stok'] <= 0) {
-            return $this->fail('Stok buku habis', 422);
-        }
-
-        // Maksimal 3 buku aktif
-        $jumlahAktif = $this->peminjaman
-            ->where('user_id', $userId)
-            ->where('status', 'DIPINJAM')
-            ->countAllResults();
-
-        if ($jumlahAktif >= 3) {
-            return $this->fail('Maksimal peminjaman aktif adalah 3 buku', 422);
-        }
-
-        // Cegah meminjam buku yang sama dua kali
-        $sudahPinjam = $this->peminjaman
-            ->where('user_id', $userId)
-            ->where('buku_id', $data['buku_id'])
-            ->where('status', 'DIPINJAM')
-            ->first();
-
-        if ($sudahPinjam) {
-            return $this->fail('Buku ini masih sedang Anda pinjam', 409);
-        }
-
-        $tanggalPinjam = date('Y-m-d');
-        $tanggalJatuhTempo = date('Y-m-d', strtotime('+7 days'));
-
-        $this->peminjaman->insert([
-            'user_id' => $userId,
-            'buku_id' => $data['buku_id'],
-            'tanggal_pinjam' => $tanggalPinjam,
-            'tanggal_jatuh_tempo' => $tanggalJatuhTempo,
-            'status' => 'DIPINJAM',
-            'denda' => 0
-        ]);
-
-        $this->buku->update($buku['id'], [
-            'stok' => $buku['stok'] - 1
-        ]);
-
-        return $this->respondCreated([
-            'status' => 201,
-            'message' => 'Peminjaman berhasil',
-            'tanggal_pinjam' => $tanggalPinjam,
-            'tanggal_jatuh_tempo' => $tanggalJatuhTempo
-        ]);
+    if (!$data || !isset($data['buku_id'])) {
+        return $this->fail('buku_id wajib diisi', 400);
     }
+
+    // Ambil user dari token JWT
+    $jwt = new JWTLibrary();
+    $header = $this->request->getHeaderLine('Authorization');
+    $token = str_replace('Bearer ', '', $header);
+    $decoded = $jwt->verifyToken($token);
+
+    // User yang sedang login
+    $userId = $decoded->data->id;
+
+    // Hanya anggota yang boleh meminjam
+    if ($decoded->data->role !== 'ANGGOTA') {
+        return $this->failForbidden('Hanya anggota yang dapat meminjam buku');
+    }
+
+    // Cari buku
+    $buku = $this->buku->find($data['buku_id']);
+
+    if (!$buku) {
+        return $this->failNotFound('Buku tidak ditemukan');
+    }
+
+    if ($buku['stok'] <= 0) {
+        return $this->fail('Stok buku habis', 422);
+    }
+
+    // Maksimal 3 buku aktif
+    $jumlahAktif = $this->peminjaman
+        ->where('user_id', $userId)
+        ->where('status', 'DIPINJAM')
+        ->countAllResults();
+
+    if ($jumlahAktif >= 3) {
+        return $this->fail('Maksimal peminjaman aktif adalah 3 buku', 422);
+    }
+
+    // Cegah meminjam buku yang sama dua kali
+    $sudahPinjam = $this->peminjaman
+        ->where('user_id', $userId)
+        ->where('buku_id', $data['buku_id'])
+        ->where('status', 'DIPINJAM')
+        ->first();
+
+    if ($sudahPinjam) {
+        return $this->fail('Buku ini masih sedang Anda pinjam', 409);
+    }
+
+    $tanggalPinjam = date('Y-m-d');
+    $tanggalJatuhTempo = date('Y-m-d', strtotime('+7 days'));
+
+    $this->peminjaman->insert([
+        'user_id' => $userId,
+        'buku_id' => $data['buku_id'],
+        'tanggal_pinjam' => $tanggalPinjam,
+        'tanggal_jatuh_tempo' => $tanggalJatuhTempo,
+        'status' => 'DIPINJAM',
+        'denda' => 0
+    ]);
+
+    $this->buku->update($buku['id'], [
+        'stok' => $buku['stok'] - 1
+    ]);
+
+    return $this->respondCreated([
+        'status' => 201,
+        'message' => 'Peminjaman berhasil',
+        'tanggal_pinjam' => $tanggalPinjam,
+        'tanggal_jatuh_tempo' => $tanggalJatuhTempo
+    ]);
+}
 
     public function kembalikan($id = null)
     {
