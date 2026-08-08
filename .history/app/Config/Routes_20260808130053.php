@@ -25,6 +25,8 @@ $routes->get('login', 'WebAuth::login');
 $routes->post('login', 'WebAuth::loginProcess');
 $routes->get('logout', 'WebAuth::logout');
 
+$routes->put('peminjaman/(:num)/sampling-terlambat', 'Peminjaman::samplingTerlambat/$1');
+
 $routes->group('api', function($routes){
     $routes->post('register','Auth::register');
     $routes->post('login','Auth::login');
@@ -58,7 +60,6 @@ $routes->group('api', ['filter' => 'admin'], function($routes){
 
      // Laporan peminjaman
     $routes->get('laporan/peminjaman', 'Peminjaman::laporan');
-    $routes->put('peminjaman/(:num)/sampling-terlambat', 'Peminjaman::samplingTerlambat/$1');
 });
 
 $routes->group('api', ['filter' => 'auth'], function ($routes) {

@@ -337,30 +337,30 @@ class Peminjaman extends ResourceController
     }
 
     public function samplingTerlambat($id = null)
-    {
-        $pinjam = $this->peminjaman->find($id);
+{
+    $pinjam = $this->peminjaman->find($id);
 
-        if (!$pinjam) {
-            return $this->failNotFound('Data peminjaman tidak ditemukan');
-        }
-
-        $data = $this->request->getJSON(true);
-
-        $hari = isset($data['hari_terlambat']) ? (int)$data['hari_terlambat'] : 3;
-
-        $tanggalJatuhTempo = date('Y-m-d', strtotime("-$hari days"));
-
-        $this->peminjaman->update($id, [
-            'tanggal_jatuh_tempo' => $tanggalJatuhTempo,
-            'tanggal_kembali' => null,
-            'status' => 'DIPINJAM',
-            'denda' => 0
-        ]);
-
-        return $this->respond([
-            'status' => 200,
-            'message' => "Sampling keterlambatan berhasil dibuat ({$hari} hari)",
-            'tanggal_jatuh_tempo' => $tanggalJatuhTempo
-        ]);
+    if (!$pinjam) {
+        return $this->failNotFound('Data peminjaman tidak ditemukan');
     }
+
+    $data = $this->request->getJSON(true);
+
+    $hari = isset($data['hari_terlambat']) ? (int)$data['hari_terlambat'] : 3;
+
+    $tanggalJatuhTempo = date('Y-m-d', strtotime("-$hari days"));
+
+    $this->peminjaman->update($id, [
+        'tanggal_jatuh_tempo' => $tanggalJatuhTempo,
+        'tanggal_kembali' => null,
+        'status' => 'DIPINJAM',
+        'denda' => 0
+    ]);
+
+    return $this->respond([
+        'status' => 200,
+        'message' => "Sampling keterlambatan berhasil dibuat ({$hari} hari)",
+        'tanggal_jatuh_tempo' => $tanggalJatuhTempo
+    ]);
+}
 }

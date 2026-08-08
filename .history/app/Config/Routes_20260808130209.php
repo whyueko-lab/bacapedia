@@ -58,7 +58,6 @@ $routes->group('api', ['filter' => 'admin'], function($routes){
 
      // Laporan peminjaman
     $routes->get('laporan/peminjaman', 'Peminjaman::laporan');
-    $routes->put('peminjaman/(:num)/sampling-terlambat', 'Peminjaman::samplingTerlambat/$1');
 });
 
 $routes->group('api', ['filter' => 'auth'], function ($routes) {
