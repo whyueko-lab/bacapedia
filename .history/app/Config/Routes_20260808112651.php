@@ -31,18 +31,13 @@ $routes->group('api', function($routes){
 });
 
 $routes->group('api', ['filter' => 'auth'], function($routes){
-    $routes->get('profile', 'Auth::profile');
+    $routes->get('profile','Auth::profile');
     $routes->get('kategori', 'Kategori::index');
     $routes->get('buku', 'Buku::index');
 
-    // Anggota hanya melihat riwayat
     $routes->get('peminjaman', 'Peminjaman::index');
-});
 
-$routes->group('api', ['filter' => 'staff'], function($routes){
-    // Diproses oleh Admin/Petugas
     $routes->post('peminjaman', 'Peminjaman::pinjam');
-    $routes->put('peminjaman/(:num)/kembalikan', 'Peminjaman::kembalikan/$1');
 });
 
 $routes->group('api', ['filter' => 'admin'], function($routes){
@@ -53,9 +48,6 @@ $routes->group('api', ['filter' => 'admin'], function($routes){
     $routes->put('buku/(:num)', 'Buku::update/$1');
     $routes->delete('buku/(:num)', 'Buku::delete/$1');
      $routes->put('peminjaman/(:num)/kembalikan', 'Peminjaman::kembalikan/$1');
-     
-     // Laporan peminjaman
-    $routes->get('laporan/peminjaman', 'Peminjaman::laporan');
 });
 
 $routes->group('api', ['filter' => 'auth'], function ($routes) {

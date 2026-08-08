@@ -22,39 +22,17 @@ class Peminjaman extends ResourceController
     {
         $data = $this->request->getJSON(true);
 
-        if (!$data || !isset($data['user_id']) || !isset($data['buku_id'])) {
-            return $this->fail('user_id dan buku_id wajib diisi', 400);
+        if (!$data || !isset($data['buku_id'])) {
+            return $this->fail('buku_id wajib diisi', 400);
         }
 
-        // Verifikasi token
+        // Ambil user dari token JWT
         $jwt = new JWTLibrary();
         $header = $this->request->getHeaderLine('Authorization');
         $token = str_replace('Bearer ', '', $header);
         $decoded = $jwt->verifyToken($token);
 
-        // Hanya ADMIN atau PETUGAS yang boleh memproses peminjaman
-        if (
-            $decoded->data->role !== 'ADMIN' &&
-            $decoded->data->role !== 'PETUGAS'
-        ) {
-            return $this->failForbidden('Hanya Admin/Petugas yang dapat memproses peminjaman');
-        }
-
-        // User yang dipinjamkan (anggota)
-        $userId = $data['user_id'];
-
-        // ===== TAMBAHKAN DI SINI =====
-        $userModel = new \App\Models\UserModel();
-
-        $anggota = $userModel->find($userId);
-
-        if (!$anggota) {
-            return $this->failNotFound('Anggota tidak ditemukan');
-        }
-
-        if ($anggota['role'] !== 'ANGGOTA') {
-            return $this->fail('Peminjaman hanya dapat dilakukan untuk user dengan role ANGGOTA', 422);
-        }
+        $userId = $decoded->data->id;
 
         // Cari buku
         $buku = $this->buku->find($data['buku_id']);
@@ -105,19 +83,6 @@ class Peminjaman extends ResourceController
 
     public function kembalikan($id = null)
     {
-        // Verifikasi token dan role
-        $jwt = new JWTLibrary();
-        $header = $this->request->getHeaderLine('Authorization');
-        $token = str_replace('Bearer ', '', $header);
-        $decoded = $jwt->verifyToken($token);
-
-        $role = $decoded->data->role;
-
-        // Hanya ADMIN/PETUGAS yang boleh memproses pengembalian
-        if ($role !== 'ADMIN' && $role !== 'PETUGAS') {
-            return $this->failForbidden('Hanya Admin/Petugas yang dapat memproses pengembalian buku');
-        }
-
         $pinjam = $this->peminjaman->find($id);
 
         if (!$pinjam) {
@@ -286,60 +251,61 @@ class Peminjaman extends ResourceController
         ]);
     }
 
-    public function kembalikanWeb($id)
-    {
-        if (!session()->get('logged_in')) {
-            return redirect()->to('/login');
-        }
+    public function kembalikan($id = null)
+{
+    // Verifikasi token dan role
+    $jwt = new JWTLibrary();
+    $header = $this->request->getHeaderLine('Authorization');
+    $token = str_replace('Bearer ', '', $header);
+    $decoded = $jwt->verifyToken($token);
 
-        $pinjam = $this->peminjaman->find($id);
+    $role = $decoded->data->role;
 
-        if (!$pinjam) {
-            return redirect()->back()->with('error', 'Data peminjaman tidak ditemukan');
-        }
-
-        if ($pinjam['status'] === 'DIKEMBALIKAN') {
-            return redirect()->back()->with('error', 'Buku sudah dikembalikan');
-        }
-
-        $tanggalKembali = date('Y-m-d');
-        $jatuhTempo = strtotime($pinjam['tanggal_jatuh_tempo']);
-        $kembali = strtotime($tanggalKembali);
-
-        $denda = 0;
-
-        if ($kembali > $jatuhTempo) {
-            $hariTerlambat = floor(($kembali - $jatuhTempo) / (60 * 60 * 24));
-            $denda = $hariTerlambat * 2000;
-        }
-
-        $this->peminjaman->update($id, [
-            'tanggal_kembali' => $tanggalKembali,
-            'status' => 'DIKEMBALIKAN',
-            'denda' => $denda
-        ]);
-
-        $buku = $this->buku->find($pinjam['buku_id']);
-
-        $this->buku->update($buku['id'], [
-            'stok' => $buku['stok'] + 1
-        ]);
-
-        return redirect()->to('/riwayat')->with('success', 'Buku berhasil dikembalikan');
+    // Hanya ADMIN/PETUGAS yang boleh memproses pengembalian
+    if ($role !== 'ADMIN' && $role !== 'PETUGAS') {
+        return $this->failForbidden('Hanya Admin/Petugas yang dapat memproses pengembalian buku');
     }
 
-    public function laporan()
-    {
-        $data = $this->peminjaman
-            ->select('peminjaman.*, users.nama, buku.judul')
-            ->join('users', 'users.id = peminjaman.user_id')
-            ->join('buku', 'buku.id = peminjaman.buku_id')
-            ->orderBy('peminjaman.id', 'DESC')
-            ->findAll();
+    $pinjam = $this->peminjaman->find($id);
 
-        return $this->respond([
-            'status' => 200,
-            'data' => $data
-        ]);
+    if (!$pinjam) {
+        return $this->failNotFound('Data peminjaman tidak ditemukan');
     }
+
+    if ($pinjam['status'] === 'DIKEMBALIKAN') {
+        return $this->fail('Buku sudah dikembalikan', 409);
+    }
+
+    $tanggalKembali = date('Y-m-d');
+    $jatuhTempo = strtotime($pinjam['tanggal_jatuh_tempo']);
+    $kembali = strtotime($tanggalKembali);
+
+    $denda = 0;
+
+    if ($kembali > $jatuhTempo) {
+        $hariTerlambat = floor(($kembali - $jatuhTempo) / (60 * 60 * 24));
+        $denda = $hariTerlambat * 2000;
+    }
+
+    // Update peminjaman
+    $this->peminjaman->update($id, [
+        'tanggal_kembali' => $tanggalKembali,
+        'status' => 'DIKEMBALIKAN',
+        'denda' => $denda
+    ]);
+
+    // Tambah stok buku
+    $buku = $this->buku->find($pinjam['buku_id']);
+
+    $this->buku->update($buku['id'], [
+        'stok' => $buku['stok'] + 1
+    ]);
+
+    return $this->respond([
+        'status' => 200,
+        'message' => 'Buku berhasil dikembalikan',
+        'tanggal_kembali' => $tanggalKembali,
+        'denda' => $denda
+    ]);
+}
 }

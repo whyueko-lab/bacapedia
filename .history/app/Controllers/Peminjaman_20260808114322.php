@@ -26,13 +26,12 @@ class Peminjaman extends ResourceController
             return $this->fail('user_id dan buku_id wajib diisi', 400);
         }
 
-        // Verifikasi token
+        // Verifikasi token petugas/admin
         $jwt = new JWTLibrary();
         $header = $this->request->getHeaderLine('Authorization');
         $token = str_replace('Bearer ', '', $header);
         $decoded = $jwt->verifyToken($token);
 
-        // Hanya ADMIN atau PETUGAS yang boleh memproses peminjaman
         if (
             $decoded->data->role !== 'ADMIN' &&
             $decoded->data->role !== 'PETUGAS'
@@ -40,21 +39,7 @@ class Peminjaman extends ResourceController
             return $this->failForbidden('Hanya Admin/Petugas yang dapat memproses peminjaman');
         }
 
-        // User yang dipinjamkan (anggota)
         $userId = $data['user_id'];
-
-        // ===== TAMBAHKAN DI SINI =====
-        $userModel = new \App\Models\UserModel();
-
-        $anggota = $userModel->find($userId);
-
-        if (!$anggota) {
-            return $this->failNotFound('Anggota tidak ditemukan');
-        }
-
-        if ($anggota['role'] !== 'ANGGOTA') {
-            return $this->fail('Peminjaman hanya dapat dilakukan untuk user dengan role ANGGOTA', 422);
-        }
 
         // Cari buku
         $buku = $this->buku->find($data['buku_id']);
@@ -342,4 +327,3 @@ class Peminjaman extends ResourceController
             'data' => $data
         ]);
     }
-}

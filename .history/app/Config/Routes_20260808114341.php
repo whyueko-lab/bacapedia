@@ -53,7 +53,6 @@ $routes->group('api', ['filter' => 'admin'], function($routes){
     $routes->put('buku/(:num)', 'Buku::update/$1');
     $routes->delete('buku/(:num)', 'Buku::delete/$1');
      $routes->put('peminjaman/(:num)/kembalikan', 'Peminjaman::kembalikan/$1');
-     
      // Laporan peminjaman
     $routes->get('laporan/peminjaman', 'Peminjaman::laporan');
 });

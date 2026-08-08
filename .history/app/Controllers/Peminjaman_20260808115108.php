@@ -19,42 +19,42 @@ class Peminjaman extends ResourceController
     }
 
     public function pinjam()
-    {
-        $data = $this->request->getJSON(true);
+{
+    $data = $this->request->getJSON(true);
 
-        if (!$data || !isset($data['user_id']) || !isset($data['buku_id'])) {
-            return $this->fail('user_id dan buku_id wajib diisi', 400);
-        }
+    if (!$data || !isset($data['user_id']) || !isset($data['buku_id'])) {
+        return $this->fail('user_id dan buku_id wajib diisi', 400);
+    }
 
-        // Verifikasi token
-        $jwt = new JWTLibrary();
-        $header = $this->request->getHeaderLine('Authorization');
-        $token = str_replace('Bearer ', '', $header);
-        $decoded = $jwt->verifyToken($token);
+    // Verifikasi token
+    $jwt = new JWTLibrary();
+    $header = $this->request->getHeaderLine('Authorization');
+    $token = str_replace('Bearer ', '', $header);
+    $decoded = $jwt->verifyToken($token);
 
-        // Hanya ADMIN atau PETUGAS yang boleh memproses peminjaman
-        if (
-            $decoded->data->role !== 'ADMIN' &&
-            $decoded->data->role !== 'PETUGAS'
-        ) {
-            return $this->failForbidden('Hanya Admin/Petugas yang dapat memproses peminjaman');
-        }
+    // Hanya ADMIN atau PETUGAS yang boleh memproses peminjaman
+    if (
+        $decoded->data->role !== 'ADMIN' &&
+        $decoded->data->role !== 'PETUGAS'
+    ) {
+        return $this->failForbidden('Hanya Admin/Petugas yang dapat memproses peminjaman');
+    }
 
-        // User yang dipinjamkan (anggota)
-        $userId = $data['user_id'];
+    // User yang dipinjamkan (anggota)
+    $userId = $data['user_id'];
 
-        // ===== TAMBAHKAN DI SINI =====
-        $userModel = new \App\Models\UserModel();
+    // ===== TAMBAHKAN DI SINI =====
+    $userModel = new \App\Models\UserModel();
 
-        $anggota = $userModel->find($userId);
+    $anggota = $userModel->find($userId);
 
-        if (!$anggota) {
-            return $this->failNotFound('Anggota tidak ditemukan');
-        }
+    if (!$anggota) {
+        return $this->failNotFound('Anggota tidak ditemukan');
+    }
 
-        if ($anggota['role'] !== 'ANGGOTA') {
-            return $this->fail('Peminjaman hanya dapat dilakukan untuk user dengan role ANGGOTA', 422);
-        }
+    if ($anggota['role'] !== 'ANGGOTA') {
+        return $this->fail('Peminjaman hanya dapat dilakukan untuk user dengan role ANGGOTA', 422);
+    }
 
         // Cari buku
         $buku = $this->buku->find($data['buku_id']);

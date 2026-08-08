@@ -22,39 +22,17 @@ class Peminjaman extends ResourceController
     {
         $data = $this->request->getJSON(true);
 
-        if (!$data || !isset($data['user_id']) || !isset($data['buku_id'])) {
-            return $this->fail('user_id dan buku_id wajib diisi', 400);
+        if (!$data || !isset($data['buku_id'])) {
+            return $this->fail('buku_id wajib diisi', 400);
         }
 
-        // Verifikasi token
+        // Ambil user dari token JWT
         $jwt = new JWTLibrary();
         $header = $this->request->getHeaderLine('Authorization');
         $token = str_replace('Bearer ', '', $header);
         $decoded = $jwt->verifyToken($token);
 
-        // Hanya ADMIN atau PETUGAS yang boleh memproses peminjaman
-        if (
-            $decoded->data->role !== 'ADMIN' &&
-            $decoded->data->role !== 'PETUGAS'
-        ) {
-            return $this->failForbidden('Hanya Admin/Petugas yang dapat memproses peminjaman');
-        }
-
-        // User yang dipinjamkan (anggota)
-        $userId = $data['user_id'];
-
-        // ===== TAMBAHKAN DI SINI =====
-        $userModel = new \App\Models\UserModel();
-
-        $anggota = $userModel->find($userId);
-
-        if (!$anggota) {
-            return $this->failNotFound('Anggota tidak ditemukan');
-        }
-
-        if ($anggota['role'] !== 'ANGGOTA') {
-            return $this->fail('Peminjaman hanya dapat dilakukan untuk user dengan role ANGGOTA', 422);
-        }
+        $userId = $decoded->data->id;
 
         // Cari buku
         $buku = $this->buku->find($data['buku_id']);
@@ -326,20 +304,5 @@ class Peminjaman extends ResourceController
         ]);
 
         return redirect()->to('/riwayat')->with('success', 'Buku berhasil dikembalikan');
-    }
-
-    public function laporan()
-    {
-        $data = $this->peminjaman
-            ->select('peminjaman.*, users.nama, buku.judul')
-            ->join('users', 'users.id = peminjaman.user_id')
-            ->join('buku', 'buku.id = peminjaman.buku_id')
-            ->orderBy('peminjaman.id', 'DESC')
-            ->findAll();
-
-        return $this->respond([
-            'status' => 200,
-            'data' => $data
-        ]);
     }
 }

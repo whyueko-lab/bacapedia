@@ -1,0 +1,54 @@
+@startuml
+
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+
+class Users {
+  +id : int
+  +user_id : varchar(20)
+  +nama : varchar(100)
+  +email : varchar(100)
+  +password : text
+  +role : enum
+  +created_at : datetime
+  +updated_at : datetime
+}
+
+class Kategori {
+  +id : int
+  +nama_kategori : varchar(100)
+  +created_at : datetime
+  +updated_at : datetime
+}
+
+class Buku {
+  +id : int
+  +buku_id : varchar(20)
+  +judul : varchar(150)
+  +penulis : varchar(100)
+  +penerbit : varchar(100)
+  +kategori_id : int
+  +stok : int
+  +tahun_terbit : year
+  +created_at : datetime
+  +updated_at : datetime
+}
+
+class Peminjaman {
+  +id : int
+  +user_id : int
+  +buku_id : int
+  +tanggal_pinjam : date
+  +tanggal_jatuh_tempo : date
+  +tanggal_kembali : date
+  +status : enum
+  +denda : decimal
+  +created_at : datetime
+  +updated_at : datetime
+}
+
+Kategori "1" -- "0..*" Buku : memiliki
+Users "1" -- "0..*" Peminjaman : melakukan
+Buku "1" -- "0..*" Peminjaman : dipinjam
+
+@enduml
