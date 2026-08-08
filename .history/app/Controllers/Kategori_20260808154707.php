@@ -142,7 +142,7 @@ class Kategori extends ResourceController
         }
 
         $this->kategori->insert([
-            'nama_kategori' => $this->request->getPost('nama_kategori')
+            'nama_kategori' => $this->request->getPost('nama_kat')
         ]);
 
         return redirect()->to('/kategori')->with('success', 'Kategori berhasil ditambahkan');
