@@ -9,8 +9,8 @@
 ```
 <div class="mb-3">
     <label class="form-label">Nama Kategori</label>
-    <input type="text" name="nama_kategori" class="form-control"
-           value="<?= $kategoriData['nama_kategori'] ?? '' ?>" required>
+    <input type="text" name="nama" class="form-control"
+           value="<?= $kategoriData['nama_kar'] ?? '' ?>" required>
 </div>
 
 <button class="btn btn-primary">Simpan</button>

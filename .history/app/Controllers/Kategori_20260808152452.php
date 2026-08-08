@@ -168,7 +168,7 @@ class Kategori extends ResourceController
         }
 
         $this->kategori->update($id, [
-            'nama_kategori' => $this->request->getPost('nama_kategori')
+            'nama' => $this->request->getPost('nama_kategori')
         ]);
 
         return redirect()->to('/kategori')->with('success', 'Kategori berhasil diupdate');

@@ -126,13 +126,10 @@
             </div>
 
             <h1>Bacapedia</h1>
-            <p style="text-align: justify; line-height: 1.8;">
-                Sistem Manajemen Perpustakaan berbasis <strong>CodeIgniter 4</strong>
-                yang dirancang untuk memudahkan pengelolaan
-                <strong>buku, kategori, anggota, peminjaman, pengembalian, dan laporan</strong>
-                dalam satu platform. Aplikasi ini menawarkan proses yang
-                <strong>sederhana, cepat, aman, dan efisien</strong> sehingga mendukung
-                operasional perpustakaan secara lebih terstruktur dan modern.
+            <p>
+                Sistem Manajemen Perpustakaan berbasis CodeIgniter 4.
+                Kelola buku, kategori, anggota, peminjaman, pengembalian,
+                dan laporan secara sederhana, cepat, dan aman.
             </p>
         </div>
 
