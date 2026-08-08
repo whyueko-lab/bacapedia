@@ -61,7 +61,7 @@
 }
 
 .login-left p{
-    color:rgba(255, 255, 255, 0.9);
+    color:rgba(68, 103, 199, 0.9);
     line-height:1.6;
     font-size:0.95rem;
     margin-bottom:0;
