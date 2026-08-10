@@ -1,217 +1,299 @@
 <!DOCTYPE html>
-
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Bacapedia</title>
+    <title>Masuk - Bacapedia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #312e81;
+            --ink: #172033;
+            --muted: #6b7280;
+        }
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        * { box-sizing: border-box; }
 
-<style>
-    body{
-    background:#f4f7fb;
-    min-height:100vh;
-}
+        body {
+            min-height: 100vh;
+            margin: 0;
+            color: var(--ink);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #eef2ff;
+        }
 
-.login-wrapper{
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:24px;
-}
+        .login-page {
+            position: relative;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            padding: 32px 20px;
+            background:
+                radial-gradient(circle at 8% 12%, rgba(129, 140, 248, .5), transparent 26rem),
+                radial-gradient(circle at 93% 85%, rgba(45, 212, 191, .28), transparent 24rem),
+                linear-gradient(135deg, #eef2ff 0%, #f8faff 48%, #ecfeff 100%);
+        }
 
-.login-card{
-    width:100%;
-    max-width:760px;      /* diperkecil dari 960px */
-    border:none;
-    border-radius:20px;
-    overflow:hidden;
-    box-shadow:0 16px 36px rgba(0,0,0,.10);
-}
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(2px);
+            opacity: .55;
+            pointer-events: none;
+        }
 
-.login-left{
-    background:linear-gradient(135deg,#2563eb,#1d4ed8);
-    color:white;
-    padding:32px;         /* lebih kecil */
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    min-height:430px;     /* diperkecil */
-}
+        .orb-one { width: 240px; height: 240px; background: #818cf8; top: -105px; right: 12%; }
+        .orb-two { width: 160px; height: 160px; background: #5eead4; bottom: -55px; left: 12%; }
 
-.login-left .brand-icon{
-    width:60px;
-    height:60px;
-    border-radius:16px;
-    background:rgba(255,255,255,.15);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    margin-bottom:18px;
-}
+        .login-card {
+            position: relative;
+            z-index: 1;
+            width: min(100%, 1050px);
+            min-height: 600px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .85);
+            border-radius: 28px;
+            background: rgba(255, 255, 255, .82);
+            box-shadow: 0 28px 70px rgba(49, 46, 129, .18);
+            backdrop-filter: blur(16px);
+        }
 
-.login-left h1{
-    font-size:1.8rem;
-    font-weight:700;
-    margin-bottom:10px;
-}
+        .brand-panel {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 600px;
+            overflow: hidden;
+            padding: 52px;
+            color: #fff;
+            background: linear-gradient(145deg, #312e81 0%, #4338ca 48%, #4f46e5 100%);
+        }
 
-.login-left p{
-    color:rgba(255, 255, 255, 0.9);
-    line-height:1.6;
-    font-size:0.95rem;
-    margin-bottom:0;
-}
+        .brand-panel::after {
+            position: absolute;
+            width: 330px;
+            height: 330px;
+            right: -125px;
+            bottom: -145px;
+            border: 50px solid rgba(255, 255, 255, .08);
+            border-radius: 50%;
+            content: "";
+        }
 
-.login-right{
-    background:#fff;
-    padding:32px;         /* lebih kecil */
-    display:flex;
-    align-items:center;
-}
+        .brand-panel::before {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            top: -75px;
+            left: -65px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .08);
+            content: "";
+        }
 
-.login-right h3{
-    font-size:1.5rem;
-    font-weight:700;
-    color:#0f172a;
-}
+        .brand-content, .brand-footer { position: relative; z-index: 1; }
 
-.form-control{
-    border-radius:12px;
-    padding:.75rem .9rem;
-}
+        .brand-logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 58px;
+            height: 58px;
+            margin-bottom: 28px;
+            border: 1px solid rgba(255, 255, 255, .23);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, .14);
+            box-shadow: 0 10px 22px rgba(20, 16, 80, .2);
+            font-size: 1.65rem;
+        }
 
-.input-group-text{
-    border-radius:12px 0 0 12px;
-    background:#f8fafc;
-}
+        .brand-kicker {
+            margin-bottom: 12px;
+            color: #c7d2fe;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+        }
 
-.btn-primary{
-    border-radius:12px;
-    padding:.8rem;
-    font-weight:600;
-}
+        .brand-title {
+            max-width: 390px;
+            margin: 0 0 18px;
+            font-size: clamp(2.25rem, 4vw, 3.35rem);
+            font-weight: 750;
+            letter-spacing: -.055em;
+            line-height: 1.08;
+        }
 
-@media (max-width:768px){
-    .login-left{
-        display:none;
-    }
+        .brand-description { max-width: 390px; margin: 0; color: rgba(255,255,255,.78); line-height: 1.75; }
 
-    .login-right{
-        padding:24px;
-    }
+        .feature-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border: 1px solid rgba(255,255,255,.15);
+            border-radius: 14px;
+            background: rgba(12, 15, 70, .18);
+            color: rgba(255,255,255,.9);
+            font-size: .9rem;
+        }
 
-    .login-card{
-        max-width:420px;
-    }
-}
-</style>
+        .form-panel { display: flex; align-items: center; padding: 52px; }
+        .form-content { width: 100%; max-width: 385px; margin: auto; }
 
+        .welcome-icon {
+            display: grid;
+            width: 48px;
+            height: 48px;
+            margin-bottom: 25px;
+            border-radius: 14px;
+            place-items: center;
+            color: var(--primary);
+            background: #eef2ff;
+            font-size: 1.35rem;
+        }
 
+        .form-title { margin: 0; font-size: 1.8rem; font-weight: 750; letter-spacing: -.04em; }
+        .form-subtitle { margin: 10px 0 30px; color: var(--muted); font-size: .96rem; }
+        .form-label { margin-bottom: 8px; color: #374151; font-size: .88rem; font-weight: 650; }
+
+        .input-group { position: relative; }
+        .input-icon { position: absolute; z-index: 3; top: 50%; left: 16px; color: #9ca3af; transform: translateY(-50%); }
+        .form-control {
+            min-height: 53px;
+            padding: .8rem 46px;
+            border: 1px solid #e5e7eb;
+            border-radius: 13px !important;
+            color: var(--ink);
+            background: #f9fafb;
+            box-shadow: none !important;
+        }
+
+        .form-control::placeholder { color: #adb5bd; }
+        .form-control:focus { border-color: #818cf8; background: #fff; box-shadow: 0 0 0 4px rgba(99,102,241,.12) !important; }
+
+        .password-toggle {
+            position: absolute;
+            z-index: 4;
+            top: 50%;
+            right: 7px;
+            width: 38px;
+            height: 38px;
+            border: 0;
+            border-radius: 10px;
+            color: #9ca3af;
+            background: transparent;
+            transform: translateY(-50%);
+        }
+
+        .password-toggle:hover { color: var(--primary); background: #eef2ff; }
+        .login-button { min-height: 53px; border: 0; border-radius: 13px; background: linear-gradient(135deg, #4f46e5, #6366f1); box-shadow: 0 10px 20px rgba(79,70,229,.24); font-weight: 650; transition: transform .2s, box-shadow .2s; }
+        .login-button:hover, .login-button:focus { background: linear-gradient(135deg, #4338ca, #4f46e5); box-shadow: 0 14px 26px rgba(79,70,229,.3); transform: translateY(-2px); }
+        .register-link { color: var(--primary); font-weight: 700; text-decoration: none; }
+        .register-link:hover { color: var(--primary-dark); text-decoration: underline; }
+        .alert { border: 0; border-radius: 13px; font-size: .9rem; }
+
+        @media (max-width: 767.98px) {
+            .login-page { padding: 18px; }
+            .login-card { max-width: 480px; min-height: auto; border-radius: 22px; }
+            .brand-panel { display: none; }
+            .form-panel { min-height: 580px; padding: 36px 26px; }
+        }
+    </style>
 </head>
 <body>
+    <main class="login-page">
+        <span class="orb orb-one"></span>
+        <span class="orb orb-two"></span>
 
-<div class="login-wrapper">
-    <div class="card login-card">
-        <div class="row g-0">
-
-
-        <div class="col-md-6 login-left">
-            <div class="brand-icon">
-                <i class="bi bi-book-half fs-2"></i>
-            </div>
-
-            <h1>Bacapedia</h1>
-            <p style="text-align: justify; line-height: 1.8;">
-                Sistem Manajemen Perpustakaan berbasis <strong>CodeIgniter 4</strong>
-                yang dirancang untuk memudahkan pengelolaan
-                <strong>buku, kategori, anggota, peminjaman, pengembalian, dan laporan</strong>
-                dalam satu platform. Aplikasi ini menawarkan proses yang
-                <strong>sederhana, cepat, aman, dan efisien</strong> sehingga mendukung
-                operasional perpustakaan secara lebih terstruktur dan modern.
-            </p>
-        </div>
-
-        <div class="col-md-6 login-right">
-            <div class="w-100">
-
-                <div class="mb-4">
-                    <h3>Selamat Datang</h3>
-                    <p class="text-muted mb-0">
-                        Masuk menggunakan akun Bacapedia Anda
-                    </p>
-                </div>
-
-                <?php if(session()->getFlashdata('error')): ?>
-                    <div class="alert alert-danger">
-                        <?= session()->getFlashdata('error') ?>
-                    </div>
-                <?php endif; ?>
-
-                <?php if(session()->getFlashdata('success')): ?>
-                    <div class="alert alert-success">
-                        <?= session()->getFlashdata('success') ?>
-                    </div>
-                <?php endif; ?>
-
-                <form action="/login" method="post">
-
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="bi bi-envelope"></i>
-                            </span>
-                            <input
-                                type="email"
-                                name="email"
-                                class="form-control"
-                                placeholder="admin@bacapedia.com"
-                                required>
+        <section class="login-card">
+            <div class="row g-0 h-100">
+                <div class="col-md-6">
+                    <div class="brand-panel">
+                        <div class="brand-content">
+                            <div class="brand-logo"><i class="bi bi-book-half"></i></div>
+                            <div class="brand-kicker">Perpustakaan Digital</div>
+                            <h1 class="brand-title">Ruang baca yang lebih teratur.</h1>
+                            <p class="brand-description">Kelola koleksi, anggota, dan aktivitas peminjaman perpustakaan Anda dalam satu pengalaman yang sederhana.</p>
+                        </div>
+                        <div class="brand-footer">
+                            <span class="feature-chip"><i class="bi bi-stars"></i> Cepat, aman, dan efisien</span>
                         </div>
                     </div>
-
-                    <div class="mb-4">
-                        <label class="form-label">Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="bi bi-lock"></i>
-                            </span>
-                            <input
-                                type="password"
-                                name="password"
-                                class="form-control"
-                                placeholder="Masukkan password"
-                                required>
-                        </div>
-                    </div>
-
-                    <button class="btn btn-primary w-100">
-                        <i class="bi bi-box-arrow-in-right me-2"></i>
-                        Login
-                    </button>
-
-                </form>
-
-                <div class="text-center mt-4">
-                    <span class="text-muted">Belum punya akun?</span>
-                    <a href="/register" class="fw-semibold text-decoration-none">
-                        Register
-                    </a>
                 </div>
 
+                <div class="col-md-6">
+                    <div class="form-panel">
+                        <div class="form-content">
+                            <div class="welcome-icon"><i class="bi bi-person-check"></i></div>
+                            <h2 class="form-title">Selamat datang kembali</h2>
+                            <p class="form-subtitle">Masuk untuk melanjutkan ke akun Bacapedia Anda.</p>
+
+                            <?php if (session()->getFlashdata('error')): ?>
+                                <div class="alert alert-danger d-flex gap-2 align-items-center mb-4" role="alert">
+                                    <i class="bi bi-exclamation-circle-fill"></i>
+                                    <span><?= esc(session()->getFlashdata('error')) ?></span>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if (session()->getFlashdata('success')): ?>
+                                <div class="alert alert-success d-flex gap-2 align-items-center mb-4" role="alert">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span><?= esc(session()->getFlashdata('success')) ?></span>
+                                </div>
+                            <?php endif; ?>
+
+                            <form action="<?= site_url('login') ?>" method="post">
+                                <?= csrf_field() ?>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Alamat email</label>
+                                    <div class="input-group">
+                                        <i class="bi bi-envelope input-icon"></i>
+                                        <input type="email" id="email" name="email" class="form-control" placeholder="nama@email.com" value="<?= old('email') ?>" autocomplete="email" required autofocus>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="password" class="form-label">Password</label>
+                                    <div class="input-group">
+                                        <i class="bi bi-lock input-icon"></i>
+                                        <input type="password" id="password" name="password" class="form-control" placeholder="Masukkan password" autocomplete="current-password" required>
+                                        <button class="password-toggle" type="button" id="passwordToggle" aria-label="Tampilkan password" aria-pressed="false">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary login-button w-100">
+                                    Masuk ke Bacapedia <i class="bi bi-arrow-right ms-2"></i>
+                                </button>
+                            </form>
+
+                            <p class="mb-0 mt-4 text-center text-muted small">Belum punya akun? <a href="<?= site_url('register') ?>" class="register-link">Buat akun</a></p>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
+    </main>
 
-    </div>
-</div>
-```
+    <script>
+        const password = document.getElementById('password');
+        const passwordToggle = document.getElementById('passwordToggle');
 
-</div>
-
+        passwordToggle.addEventListener('click', () => {
+            const isHidden = password.type === 'password';
+            password.type = isHidden ? 'text' : 'password';
+            passwordToggle.setAttribute('aria-label', isHidden ? 'Sembunyikan password' : 'Tampilkan password');
+            passwordToggle.setAttribute('aria-pressed', String(isHidden));
+            passwordToggle.querySelector('i').className = isHidden ? 'bi bi-eye-slash' : 'bi bi-eye';
+        });
+    </script>
 </body>
 </html>
