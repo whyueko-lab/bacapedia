@@ -21,6 +21,8 @@ $routes->post('register', 'WebAuth::registerProcess');
 $routes->get('login', 'WebAuth::login');
 $routes->post('login', 'WebAuth::loginProcess');
 $routes->get('logout', 'WebAuth::logout');
+$routes->get('profile', 'WebAuth::profile');
+$routes->post('profile', 'WebAuth::updateProfile');
 
 $routes->get('dashboard', 'Dashboard::index');
 $routes->get('test/hash', 'Test::hash');
